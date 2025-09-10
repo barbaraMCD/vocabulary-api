@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using VocabularyAPI.Data;
 using VocabularyAPI.DTOs;
 using VocabularyAPI.Models;
 
@@ -6,88 +8,93 @@ namespace VocabularyAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class WordsController : ControllerBase
+public class WordsController(AppDbContext context, ILogger<WordsController> logger) : ControllerBase
 {
-    private readonly ILogger<WordsController> _logger;
-
-    public WordsController(ILogger<WordsController> logger)
-    {
-        _logger = logger;
-    }
-    // Liste temporaire en mémoire (on remplacera par la DB plus tard)
-    private static readonly List<Word> Words = new()
-    {
-        new Word { Id = 1, English = "cat", French = "chat", Category = "animals" },
-        new Word { Id = 2, English = "dog", French = "chien", Category = "animals" },
-        new Word { Id = 3, English = "quickly", French = "rapidement", Category = "adverbs" }
-    };
     
     [HttpGet]
-    public ActionResult<IEnumerable<Word>> GetWords()
+    public async Task<ActionResult<IEnumerable<Word>>> GetWords()
     {
-        return Ok(Words);
+        var words = await context.Words.ToListAsync();
+        return Ok(words);
     }
     
     [HttpGet("{id}")]
-    public ActionResult<Word> GetWord(int id)
+    public async Task<ActionResult<Word>> GetWord(int id)
     {
-        var word = Words.FirstOrDefault(w => w.Id == id);
+        var word = await context.Words.FindAsync(id);
+        
         if (word == null)
         {
             return NotFound(new { message = "Mot non trouvé" });
         }
+        
         return Ok(word);
     }
     
     [HttpGet("category/{category}")]
     public ActionResult<IEnumerable<Word>> GetWordsByCategory(string category)
     {
-        var words = Words.Where(w => w.Category.Equals(category, StringComparison.OrdinalIgnoreCase));
+        var words = context.Words
+            .Where(w => w.Category.Equals(category, StringComparison.OrdinalIgnoreCase))
+            .ToListAsync();
+        
         return Ok(words);
     }
     
     [HttpPost]
-    public ActionResult<Word> CreateWord(CreateWordDto wordDto)
+    public async Task<ActionResult<Word>> CreateWord(CreateWordDto wordDto)
     {
         var word = new Word
         {
-            Id = Words.Max(w => w.Id) + 1,
             English = wordDto.English,
             French = wordDto.French,
             Category = wordDto.Category
         };
         
-        Words.Add(word);
-        // ajoute dans le header location le lien vers la ressource créé, pratique pour le front
+        context.Words.Add(word);
+        await context.SaveChangesAsync();
+        
+        logger.LogInformation($"Nouveau mot créé: {word.English}");
+        
         return CreatedAtAction(nameof(GetWord), new { id = word.Id }, word);
     }
     
     [HttpPut("{id}")]
-    public IActionResult UpdateWord(int id, UpdateWordDto wordDto)
+    public async Task<IActionResult> UpdateWord(int id, UpdateWordDto wordDto)
     {
-        var word = Words.FirstOrDefault(w => w.Id == id);
+        var word = await context.Words.FindAsync(id);
+        
         if (word == null)
         {
-            return NotFound();
+            return NotFound(new { message = "Mot non trouvé" });
         }
 
         word.English = wordDto.English;
         word.French = wordDto.French;
         word.Category = wordDto.Category;
+        
+        await context.SaveChangesAsync();
+        
+        logger.LogInformation($"Mot modifié: ID={id}");
 
         return Ok(new { message = "Le mot a bien été modifié" });
     }
     
     [HttpDelete("{id}")]
-    public IActionResult DeleteWord(int id)
+    public async Task<IActionResult> DeleteWord(int id)
     {
-        var word = Words.FirstOrDefault(w => w.Id == id);
+        var word = await context.Words.FindAsync(id);
+        
         if (word == null)
         {
-            return NotFound();
+            return NotFound(new { message = "Mot non trouvé" });
         }
 
-        Words.Remove(word);
-        return Ok(new {message = "mot supprimé"});
+        context.Words.Remove(word);
+        await context.SaveChangesAsync();
+        
+        logger.LogInformation($"Mot supprimé: {word.English}");
+        
+        return Ok(new { message = "Mot supprimé" });
     }
 }

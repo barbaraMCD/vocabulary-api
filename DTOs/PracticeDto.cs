@@ -15,7 +15,6 @@ public class AnswerResultDto
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] 
     public string? CorrectAnswer { get; set; }
     public int NewLevel { get; set; }
-    public int TotalReviews { get; set; }
 }
 
 public class UserStatsDto

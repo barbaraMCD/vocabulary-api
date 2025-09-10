@@ -36,5 +36,11 @@ public class AppDbContext : DbContext
                 PasswordHash = "test"
             }
         );
+        
+        modelBuilder.Entity<UserProgress>().HasData(
+            new UserProgress { Id = 1, UserId = 1, WordId = 1, Level = 1, CorrectCount = 2 },
+            new UserProgress { Id = 2, UserId = 1, WordId = 2, Level = 0, CorrectCount = 0 },
+            new UserProgress { Id = 3, UserId = 2, WordId = 1, Level = 2, CorrectCount = 3 }
+        );
     }
 }

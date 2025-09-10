@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using VocabularyAPI.Data;
+using VocabularyAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,12 +18,12 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite("Data Source=vocabulary.db"));
+    options.UseSqlite("Data Source=vocabulary.db")
+        .ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning))
+);
 
-// TODO: Ajouter les services
-// builder.Services.AddScoped<IWordService, WordService>();
+builder.Services.AddScoped<UserProgressService>();
 
-// CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll",
@@ -41,14 +43,13 @@ using (var scope = app.Services.CreateScope())
     dbContext.Database.EnsureCreated();
 }
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Vocabulary API V1");
-        c.RoutePrefix = string.Empty; // Pour avoir Swagger à la racine
+        c.RoutePrefix = string.Empty;
     });
 }
 

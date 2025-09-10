@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using VocabularyAPI.DTOs;
 using VocabularyAPI.Data;  
 
@@ -8,6 +9,24 @@ namespace VocabularyAPI.Controllers;
 [Route("api/[controller]")]
 public class UserProgressController(AppDbContext context): ControllerBase
 {
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<UserProgressDto>>> GetUserProgresses()
+    {
+        var userProgresses = await context.UserProgress
+            .ToListAsync();
+
+        var userProgressDtos = userProgresses.Select(userProgress => new UserProgressDto
+        {
+            UserProgressId = userProgress.Id,
+            UserId = userProgress.UserId,
+            WordId = userProgress.WordId,
+            Level = userProgress.Level,
+            CorrectCount = userProgress.CorrectCount
+        });
+
+        return Ok(userProgressDtos);
+    }
+    
     [HttpGet("{userProgressId}")]
     public async Task<ActionResult<UserProgressDto>> GetUserProgress(int userProgressId)
     {
@@ -19,6 +38,7 @@ public class UserProgressController(AppDbContext context): ControllerBase
     
         return Ok(new UserProgressDto
         {
+            UserProgressId = userProgress.Id,
             UserId = userProgress.UserId,
             WordId = userProgress.WordId,
             Level = userProgress.Level,

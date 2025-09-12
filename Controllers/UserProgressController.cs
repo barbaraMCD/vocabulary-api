@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VocabularyAPI.DTOs;
@@ -9,6 +10,7 @@ namespace VocabularyAPI.Controllers;
 [Route("api/[controller]")]
 public class UserProgressController(AppDbContext context): ControllerBase
 {
+    [Authorize]
     [HttpGet]
     public async Task<ActionResult<IEnumerable<UserProgressDto>>> GetUserProgresses()
     {
@@ -27,6 +29,7 @@ public class UserProgressController(AppDbContext context): ControllerBase
         return Ok(userProgressDtos);
     }
     
+    [Authorize]
     [HttpGet("{userProgressId}")]
     public async Task<ActionResult<UserProgressDto>> GetUserProgress(int userProgressId)
     {

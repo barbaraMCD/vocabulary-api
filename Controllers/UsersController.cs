@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VocabularyAPI.DTOs;
 using VocabularyAPI.Models;
@@ -10,7 +11,7 @@ namespace VocabularyAPI.Controllers;
 [Route("api/[controller]")]
 public class UsersController(AppDbContext context): ControllerBase
 {
-    
+    [Authorize]
     [HttpGet]
     public async Task<ActionResult<IEnumerable<User>>> GetUsers()
     {
@@ -29,6 +30,7 @@ public class UsersController(AppDbContext context): ControllerBase
         return Ok(userDtos);
     }
     
+    [Authorize]
     [HttpGet("{userId}")]
     public async Task<ActionResult<UserDto>> GetUser(int userId)
     {
@@ -54,6 +56,7 @@ public class UsersController(AppDbContext context): ControllerBase
         });
     }
     
+    [Authorize]
     [HttpGet("stats/{userId}")]
     public async Task<ActionResult<UserStatsDto>> GetStats(int userId)
     {

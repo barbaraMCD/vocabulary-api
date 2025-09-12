@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VocabularyAPI.Data;
@@ -10,7 +11,7 @@ namespace VocabularyAPI.Controllers;
 [Route("api/[controller]")]
 public class WordsController(AppDbContext context, ILogger<WordsController> logger) : ControllerBase
 {
-    
+    [Authorize]
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Word>>> GetWords()
     {
@@ -31,6 +32,7 @@ public class WordsController(AppDbContext context, ILogger<WordsController> logg
         return Ok(word);
     }
     
+    [Authorize]
     [HttpGet("category/{category}")]
     public ActionResult<IEnumerable<Word>> GetWordsByCategory(string category)
     {
@@ -41,6 +43,7 @@ public class WordsController(AppDbContext context, ILogger<WordsController> logg
         return Ok(words);
     }
     
+    [Authorize]
     [HttpPost]
     public async Task<ActionResult<Word>> CreateWord(CreateWordDto wordDto)
     {
@@ -59,6 +62,7 @@ public class WordsController(AppDbContext context, ILogger<WordsController> logg
         return CreatedAtAction(nameof(GetWord), new { id = word.Id }, word);
     }
     
+    [Authorize]
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateWord(int id, UpdateWordDto wordDto)
     {
@@ -80,6 +84,7 @@ public class WordsController(AppDbContext context, ILogger<WordsController> logg
         return Ok(new { message = "Le mot a bien été modifié" });
     }
     
+    [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteWord(int id)
     {

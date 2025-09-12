@@ -12,4 +12,4 @@ API ASP.NET Core pour apprendre le vocabulaire anglais et avoir une progression 
 7. Applique la migration à la base de données avec `dotnet ef database update`
 7. Lance l’application avec `dotnet watch run` (watch permet de le lancer avec auto reload)
 8. Connectes toi à la base de données (SQLite) et vérifie que les tables sont créées (fichier de db Vocabulary.db)
-8. Teste les endpoints via Postman
+8. Teste les endpoints via Swagger ou Postman

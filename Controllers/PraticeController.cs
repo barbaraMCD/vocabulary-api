@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VocabularyAPI.Data;
 using VocabularyAPI.DTOs;
@@ -9,6 +10,7 @@ namespace VocabularyAPI.Controllers;
 [Route("api/[controller]")]
 public class PracticeController(AppDbContext context, UserProgressService userProgressService) : ControllerBase
 {
+    [Authorize]
     [HttpPost("answer")]
     public async Task<ActionResult<AnswerResultDto>> CheckAnswer(AnswerDto answer)
     {

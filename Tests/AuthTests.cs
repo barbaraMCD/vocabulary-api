@@ -1,5 +1,7 @@
+using System.Net;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using VocabularyAPI.Controllers;
 using VocabularyAPI.Data;
@@ -41,5 +43,16 @@ public class AuthControllerTests
         
         var tokenProperty = okResult.Value.GetType().GetProperty("token");
         Assert.NotNull(tokenProperty);
+    }
+    
+    [Fact]
+    public async Task CannotAccessToUsersWithoutToken()
+    {
+        var factory = new WebApplicationFactory<Program>();
+        var client = factory.CreateClient();
+    
+        var response = await client.GetAsync("/api/Users");
+        
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
 }
